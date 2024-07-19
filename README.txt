@@ -1,3 +1,8 @@
+To make this website, I used the Phantom Template by HTML5 UP and modifying it for my own use! 
+I changed the layout a bit and added some fading elements. 
+Credits to the makers of the template are included below!
+
+
 Phantom by HTML5 UP
 html5up.net | @ajlkn
 Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
