@@ -1,0 +1,146 @@
+<!DOCTYPE HTML>
+<!--
+	Phantom by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Generic - Phantom by HTML5 UP</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<div class="inner">
+
+							
+
+							<!-- Nav -->
+								<nav>
+									<ul>
+										<li><a href="#menu">Menu</a></li>
+									</ul>
+								</nav>
+
+						</div>
+					</header>
+
+				<!-- Menu -->
+					<nav id="menu">
+						<h2>Menu</h2>
+						<ul>
+							<li><a href="index.html">Home</a></li>
+							<li><a href="projects.html">Academic Projects</a></li>
+							<li><a href="industry.html">Industry Experience</a></li>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+							<div>
+								<h1 id="fade1">Academic Projects</h1>
+							</div>
+							<div class="box alt" id="fade2">
+								<div class="row gtr-uniform">
+									<div class="col-3"><span class="image fit"><img src="images/ENGINEER1.jpg" alt="" /></span></div>
+									<div class="col-6"><span class="image fit" style="height: 100%"><img src="images/LYLE_DEPLOY.jpg" alt="" /></span></div>
+									<div class="col-3"><span class="image fit"><img src="images/ENGINEER2.jpg" alt="" /></span></div>
+								</div>
+							</div>
+							
+							<h2>Introduction</h2>
+							<p> Learn more about the projects I have done throughout my time at Harvey Mudd College. Through these projects, I have gained invaluable experience implementing the Engineering-Design process, rapid prototyping, designing for manufacturing, and writing code in Python and C++.</p>
+							
+							<br>
+							
+							<div class="box" style="display: flex; align-items: center; justify-content: left;">
+								<div><h3 style="margin:0">Zero Z-Force Pipetting </h3></div>
+							</div>
+
+							<p><span class="image left"><img src="images/SITE_VISIT.jpg" alt="" /> <em>A picture of me programming controls on site!</em> </span> Last year, I had the privilege of working with an awesome startup called Trilobio as part of Harvey Mudd’s <a href = “https://www.hmc.edu/clinic/”>clinic program</a>, a program where teams of 4-6 students work with companies on a wide array of projects. Trilobio is developing a system of robotic lab automation modules in order to facilitate lower cost, automated, and reproducible lab work, learn more about them <a href = “https://trilo.bio/#/”>here</a>. 
+
+								<br><br>Trilobio tasked my team with developing methods of reducing z-axis force when picking up pipette tips, as a robot arm could not handle pickup of pipette tips when scaling up the number of pipettes. Our team took on the challenge head-on and not only developed a novel method of picking up pipette tips through hydraulics, but successfully prototyped a system for automatic eight-channel pipette tip pick up, aspiration, dispensing, and disposal using zero z-axis force.
+								
+								<br><br>During the project, I implemented a method of hydraulic inflation for tip pick up. I worked on designing and fabricating mechanical fixtures for 3D-printed elastic resin sleeves to create water-tight seals in our prototype. I created test procedures to validate durability and sealing, writing G-code to carry out cycle testing of the hydraulics system.
+								
+								<br><br>I also was single-handedly responsible for automating the inflation of the sleeves, designing a custom peristaltic pump system, as well as integrating the entire system with Trilobio’s robot using Python. This integration was done entirely on-site, where I worked quickly under pressure to familiarize myself with Trilobio’s codebase and successfully integrated our system. 
+							</p>
+							
+							<br>
+
+							<div class="box" style="display: flex; align-items: center; justify-content: left;">
+								<div><h3 style="margin:0">LYLE: Location Yielding Littoral Explorer</h3></div>
+							</div>
+							
+							<p><span class="image left"><img src="images/LYLE2.jpg" alt="" /> <em>A picture of our final robot build.</em> </span>All spring semester sophomore engineers at Harvey Mudd undergo a rigorous lab-based class called E80, or Experimental Engineering. In the latter half of this class, students work in teams of four to five students to develop a fully autonomous underwater robot that measures a phenomenon of their choice with a limit of $50 to purchase sensors. At the end of the class, this robot is deployed at Dana Point Beach, a harbor in the suburbs of Los Angeles. 
+
+								<br><br>My team chose to measure ocean depth using a side-sweeping sonar system composed of a speaker, microphone, and a stepper motor. We carefully weighed tradeoffs to choose the most optimal combination of sensors to stay under our budget. In order to make up for limits in the equipment, we designed circuitry to perform pulse generation and audio amplification on the speaker as well as pulse detection on the microphone. 
+								
+								<br><br>I designed the depth measurement process using C++ on a Teensy 4.0 microcontroller. First, LYLE’s speaker sends a pulse signal. Then, a microphone detection cycle initiates and senses for a return signal. Finally, the stepper moves 3.6 degrees in the negative or positive direction. This cycle continues at one location until a full sweep of data is collected (-36 to 36 degrees). The robot then moves autonomously to a new location and the depth measurement process repeats. Throughout this process, microphone output, stepper position, and GPS data are all logged to an SD card. 
+							</p>
+							<p>
+								<span class="image right"><img src="images/LYLE_DATA.png" alt=""/> <em>In this map, the shore is to the right and deeper waters to the left, note how depth decreases as you approach the shore!</em></span>
+								I integrated all of the sensors and mechanical components into a cohesive system performing this process. I wrote well-documented object-oriented code to program sensor controls as well as data collection mechanisms. I wrote custom data logging procedures to handle the rapid and large collection of data during pulse detection. By isolating the time of arrival of a pulse, I was able to calculate approximate depth around the robot and generate topographical maps in MATLAB. On the right is an example from our deployment at Dana Point Beach. 
+								
+								<br><br>For this project, my team won the J.R. Phillips Award for outstanding experimental technique and engineering judgment. We were chosen for this award over all other sophomore engineering teams (roughly 30 other teams). 
+								<br><br>
+								<br><br>
+							</p>								
+							
+						</div>
+					</div>
+
+						<!-- Footer -->
+						<footer id="footer">
+							<div class="inner">
+								<section>
+									<h2>Get in touch</h2>
+									<form method="post" action="#">
+										<div class="fields">
+											<div class="field half">
+												<input type="text" name="name" id="name" placeholder="Name" />
+											</div>
+											<div class="field half">
+												<input type="email" name="email" id="email" placeholder="Email" />
+											</div>
+											<div class="field">
+												<textarea name="message" id="message" placeholder="Message"></textarea>
+											</div>
+										</div>
+										<ul class="actions">
+											<li><input type="submit" value="Send" class="primary" /></li>
+										</ul>
+									</form>
+								</section>
+								<section>
+									<h2>Follow</h2>
+									<ul class="icons">
+										<li><a href="#" class="icon brands style2 fa-linkedin"><span class="label">Twitter</span></a></li>
+										<li><a href="#" class="icon solid style2 fa-envelope"><span class="label">Email</span></a></li>
+									</ul>
+								</section>
+								<ul class="copyright">
+									<li>&copy; Untitled. All rights reserved</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+								</ul>
+							</div>
+						</footer>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
