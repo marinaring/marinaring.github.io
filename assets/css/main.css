@@ -3410,3 +3410,9 @@ input, select, textarea {
 
 		}
 
+		@media screen and (max-width: 736px) {
+			.col-3, .col-6 {
+				flex: 0 0 100%;
+				max-width: 100%
+			}
+		}
