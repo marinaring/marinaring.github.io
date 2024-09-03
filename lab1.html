@@ -6,7 +6,7 @@
 -->
 <html>
 	<head>
-		<title>Academic Projects</title>
+		<title>Lab 1</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 		<link rel="stylesheet" href="assets/css/main.css" />
@@ -88,7 +88,7 @@
 										
 										The circuit schematic on the left details the Upduino pins I used to power the display. Since the MAN6410 is a common anode display, 3.3V is supplied at the
 										anode and each pin acts as a cathode. To turn a segment on, a pin is set to low or 0 and so current can flow down that path. To turn a segment off, the pin is 
-										set back to high or 1. 
+										set back to high or 1. For controlling LEDs, I used onboard LEDs connected to P42 (led[0]), P38 (led[1]), and P28 (led[3]).
 
 										<br><br>
 									</p>
@@ -114,7 +114,7 @@
 									<p>
 										<span class="image left"><img src="images/LAB1_BLOCK.png" alt="" /> <em>A block diagram model for this system.</em> </span>
 										
-										On the left is a block diagram visualizing the modules that I used in this lab and their inputs, outputs, and connections. I separated the combinational logic
+										On the left is a block diagram visualizing the Verilog modules that I used in this lab and their inputs, outputs, and connections. I separated the combinational logic
 										for controlling the LEDs and for controlling the 7 segment display in order to better be able to test their functions individually. By modularizing into these two blocks,
 										I was able to isolate errors within each block of combinational logic. 
 
@@ -125,9 +125,33 @@
 									<p>
 										<span class="image right"><img src="images/OSC_DATA.jpg" alt=""/> <em>A photo of the oscilloscope measuring the blinking LED signal. Note in the bottom left corner, a frequency measurement of 2.44 Hz!</em></span>
 										
+										I wrote a testbench for each module with corresponding test vectors. For the led_logic module, the test vectors corresponded to each entry in the truth table shown <a href = "https://hmc-e155.github.io/lab/lab1/#fpga-design">here</a>
+										Additionally, I also used an oscilliscope to verify the frequency of the blinking LED. As you can see in the photo on the left, I successfully produced a signal of approximately 2.4 Hz. The oscilliscope output is shown to the right and the successful ModelSim simulation result is shown below.
+										For the seg_logic module, the test vectors corresponded to each possible DIP switch input or all 4 digit binary numbers. The successful ModelSim simulation is shown in the last image below. 
+									</p>
+								</div>		
+								
+								<div style="display: block;">
+									<p>
+										<span class="image fit"><img src="images/LAB1_LED_TEST.png" alt=""/> <em>The ModelSim waveform output of the seg_logic testbench</em></span>
 										
 									</p>
-								</div>								
+								</div>	
+
+								<div style="display: block;">
+									<p>
+										<span class="image fit"><img src="images/LAB1_SEG_TEST.png" alt=""/> <em>The ModelSim waveform output of the seg_logic testbench</em></span>
+									</p>
+								</div>	
+
+								<div style="display: inline-block;">
+									<p>
+										After testing, I successfully compiled and uploaded the Verilog modules to the Upduino. The design meets all of the <a href = "https://hmc-e155.github.io/lab/lab1/specs.html">requirements.</a>								
+										<br>
+										This lab took me 19 hours in total. 
+									</p>
+								</div>
+
 							</div>
 						</div>
 					</div>
