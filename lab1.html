@@ -83,12 +83,22 @@
 
 								<div style="display: inline-block;">
 									<p>
-										<span class="image left" style="max-width:25%;"><img src="images/SEGMENT_CIRCUIT.jpg" alt="" /> <em>A picture of the final circuit implemented on a Proto-Board.</em> </span>
+										<span class="image left" style="max-width:24%;"><img src="images/SEGMENT_CIRCUIT.jpg" alt="" /> <em>A picture of the final circuit implemented on a Proto-Board.</em> </span>
 										<span class="image left" style="max-width:35%;"><img src="images/LAB1_CIRCUIT.png" alt="" /> <em>A circuit schematic for this lab.</em> </span>
 										
 										The circuit schematic on the left details the Upduino pins I used to power the display. Since the MAN6410 is a common anode display, 3.3V is supplied at the
 										anode and each pin acts as a cathode. To turn a segment on, a pin is set to low or 0 and so current can flow down that path. To turn a segment off, the pin is 
 										set back to high or 1. 
+
+										<br><br>
+									</p>
+								</div>
+
+								<div style="display: inline-block;">
+									<p>
+										One specification for this project was to blink an LED at 2.4 Hz. I used the onboard High Speed Oscillator to generate a 24 MHz signal and a counter to do this. 
+										I then encoded a digitally controlled oscillator, or an N-bit counter that adds p on each cycle. Values for p and N can be determined through the formula
+										<em>f_LED = f_clk * p/2^N</em>. For my system, I chose N = 32 and p = 430, which theoretically should produce a frequency of 2.403 Hz (an error of 0.12%).
 									</p>
 								</div>
 							</div>
@@ -99,20 +109,25 @@
 								<div class="box" style="display: flex; align-items: center; justify-content: left;">
 									<div><h3 style="margin:0">Software and Verification</h3></div>
 								</div>
-							
-								<p><span class="image left"><img src="images/LAB1_BLOCK.png" alt="" /> <em>A block diagram model for this system.</em> </span>All spring semester sophomore engineers at Harvey Mudd undergo a rigorous lab-based class called E80, or Experimental Engineering. In the latter half of this class, students work in teams of four to five students to develop a fully autonomous underwater robot that measures a phenomenon of their choice with a limit of $50 to purchase sensors. At the end of the class, this robot is deployed at Dana Point Beach, a harbor in the suburbs of Los Angeles. 
+								
+								<div style="display: inline-block;">
+									<p>
+										<span class="image left"><img src="images/LAB1_BLOCK.png" alt="" /> <em>A block diagram model for this system.</em> </span>
+										
+										On the left is a block diagram visualizing the modules that I used in this lab and their inputs, outputs, and connections. I separated the combinational logic
+										for controlling the LEDs and for controlling the 7 segment display in order to better be able to test their functions individually. By modularizing into these two blocks,
+										I was able to isolate errors within each block of combinational logic. 
 
-									<br><br>My team chose to measure ocean depth using a side-sweeping sonar system composed of a speaker, microphone, and a stepper motor. We carefully weighed tradeoffs to choose the most optimal combination of sensors to stay under our budget. In order to make up for limits in the equipment, we designed circuitry to perform pulse generation and audio amplification on the speaker as well as pulse detection on the microphone. 
-									
-									<br><br>I designed the depth measurement process using C++ on a Teensy 4.0 microcontroller. First, LYLE’s speaker sends a pulse signal. Then, a microphone detection cycle initiates and senses for a return signal. Finally, the stepper moves 3.6 degrees in the negative or positive direction. This cycle continues at one location until a full sweep of data is collected (-36 to 36 degrees). The robot then moves autonomously to a new location and the depth measurement process repeats. Throughout this process, microphone output, stepper position, and GPS data are all logged to an SD card. 
-								</p>
-								<p>
-									<span class="image right"><img src="images/LYLE_DATA.png" alt=""/> <em>In this map, the shore is to the right and deeper waters to the left, note how depth decreases as you approach the shore!</em></span>
-									I integrated all of the sensors and mechanical components into a cohesive system performing this process. I wrote well-documented object-oriented code to program sensor controls as well as data collection mechanisms. I wrote custom data logging procedures to handle the rapid and large collection of data during pulse detection. By isolating the time of arrival of a pulse, I was able to calculate approximate depth around the robot and generate topographical maps in MATLAB. On the right is an example from our deployment at Dana Point Beach. 
-									
-									<br><br>For this project, my team won the J.R. Phillips Award for outstanding experimental technique and engineering judgment. We were chosen for this award over all other sophomore engineering teams (roughly 15 other teams). 
-					
-								</p>								
+									</p>
+								</div>
+
+								<div style="display: inline-block;">
+									<p>
+										<span class="image right"><img src="images/OSC_DATA.jpg" alt=""/> <em>A photo of the oscilloscope measuring the blinking LED signal. Note in the bottom left corner, a frequency measurement of 2.44 Hz!</em></span>
+										
+										
+									</p>
+								</div>								
 							</div>
 						</div>
 					</div>
