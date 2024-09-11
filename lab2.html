@@ -1,0 +1,231 @@
+<!DOCTYPE HTML>
+<!--
+	Phantom by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Lab 2</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+		<script id="MathJax-script" async
+          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  		</script>
+	</head>
+	<body class="is-preload">
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<div class="inner">
+
+							
+
+							<!-- Nav -->
+								<nav>
+									<ul>
+										<li><a href="#menu">Menu</a></li>
+									</ul>
+								</nav>
+
+						</div>
+					</header>
+
+				<!-- Menu -->
+					<nav id="menu">
+						<h2>Menu</h2>
+						<ul>
+							<li><a href="index.html">Home</a></li>
+							<li><a href="projects.html">Academic Projects</a>
+								<ul>
+									<li><a href="microps.html">Microprocessor Systems Blog</a></li>
+								</ul>
+							</li>
+							<li><a href="industry.html">Industry Experience</a></li>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+							<div>
+								<h1 id="fade1">Lab 2: Multiplexed 7-Segment Display</h1>
+							</div>
+							
+							<h2>Introduction</h2>
+							
+								<p> This lab introduced us to managing I/O on our FPGA by turning the single seven segment display from <a href="lab1.html">Lab 1</a> into a dual seven segment
+									display! Instead of doubling the amount of I/O pins used to program the display, we were tasked with implementing time-multiplexing to control the two displays.
+									This lab was important in teaching us how to properly manage clocks and ensuring we followed synchronous sequential design principles even as our hardware becomes more complex. 
+									See the <a href="https://hmc-e155.github.io/lab/lab2/">E155 Lab 2 Page</a> for a more detailed overview of the specifications and instructions for this lab.</p> 
+								
+								<p>	All code written for this lab can be found on my <a href = "https://github.com/marinaring/E155-lab2">E155 Lab 2 Repository on Github.</a></p>
+								
+
+							<br>
+							
+							<div style="display:inline-block; padding-bottom: 2em;">
+								<div class="box" style="display: flex; align-items: center; justify-content: left;">
+									<div><h3 style="margin:0">Setup and Circuitry</h3></div>
+								</div>
+
+								<div style="display: inline-block;">
+									<p>
+										<span class="image left" style="max-width:25%;"><img src="images/Lab2/PROTOBOARD.jpg" alt="" /> <em>A picture of my completed circuit!</em> </span>
+										
+										On the left is a picture of my final circuit setup, the circuit diagram for this circuit is shown at the bottom of this section. Two transistors were used to carry out 
+										the time-multiplexing as a signal was sent to each controlling which display received power at any moment. Since the gate of the transistors were
+										connected to I/O on the FPGA, it was important to ensure there was not too much current being drawn from the FPGA pins. I used the following expression
+										to calculate resistor values. From <a href = "https://hmc-e155.github.io/assets/doc/FPGA-DS-02008-2-0-iCE40-UltraPlus-Family-Data-Sheet.pdf">the datasheet for the FPGA</a>, the maximum current
+										draw for maintaining logic levels is 8 mA. 
+										\[ R = (V_{cc} - V_{LED}) / I_{max} \]
+										\[ R = (3.3V - 0.7V) / 0.008A = 325 Ohms\] 
+										<br>
+
+										I ended up using a resistor of 1.2 kOhms just to be safe. I also made sure that the green LEDs I used to display the sum of two numbers had the appropriate current-limiting resistors. 
+										I used Ohm's Law again, considering a 2V voltage drop across one LED. 
+										\[ R = (V_{cc} - V_{LED})/ I \]
+										\[ R = 3.3V - 2V/ 0.01A = 130 Ohms \]
+								
+									</p>
+								</div>
+
+								<div style="display: inline-block;">
+									<p>
+										
+										The circuit schematica below details the Upduino pins I used to power the display and LEDs. Since the MAN6410 is a common anode display, 3.3V is supplied at the
+										anode and each pin acts as a cathode. To turn a segment on, a pin is set to low or 0 and so current can flow down that path. To turn a segment off, the pin is 
+										set back to high or 1. The pin assigments are displayed in the cirucit diagrams below. 
+
+										<br><br>
+									</p>
+
+								</div>
+
+								<div style="display: block;">
+									<span class="image left" style="max-width:50%;"><img src="images/Lab2/CIRCUIT_DISPLAY.png" alt="" /> </span>
+									<span class="image left" style="max-width:50%;"><img src="images/Lab2/CIRCUIT_LED_SWITCH.png" alt="" /> </span>
+											
+								</div>	
+							</div>
+
+							
+								
+							<br>
+
+							<div style="display: inline-block; padding-bottom: 4em;">
+								<div class="box" style="display: flex; align-items: center; justify-content: left;">
+									<div><h3 style="margin:0">Software and Verification</h3></div>
+								</div>
+								
+								<div style="display: inline-block;">
+									<p>
+										<span class="image left"><img src="images/Lab2/LAB2_BLOCK.png" alt="" /> <em>A block diagram model for this system.</em> </span>
+										
+										On the left is a block diagram visualizing the Verilog modules that I used in this lab and their inputs, outputs, and connections. I created separate modules to control the LEDs displaying the sum 
+										of the two digits and to control the display itself. This was done to individually isolate each system to debug them separately. In particular, the multiplexing module was more complicated to debug, 
+										so separating it from other modules made testing other functions of this design easier. 
+										
+									</p>
+								</div>
+
+								<div style="display: inline-block;">
+									<p>
+										
+										The FPGA outputs a 24 MHz clock, but I found this too fast for multiplexing as the propagation time through the circuit is slower than the clock switching, causing the 
+										displayed digits to "bleed" together. It is found that humans can potentially distinguish flickering up to 500 Hz, so I decided that a frequency around 1-5 kHz would be sufficient
+										for multiplexing. I chose a 12 bit counter to produce a frequency of around 3 kHz. The digit that is powered changes once the counter overflows, or after each digit is 1. 
+										\[ f_{digits} = f_{clk}/(2*2^{N}) \]
+										\[ f_{digits} = 24*10^{6}/2*2^{12} = ~3 kHz\]
+	
+		
+									</p>
+	
+								</div>
+
+								<div style="display: inline-block;">
+									<p>										
+										I wrote a testbench for each module with corresponding test vectors. For the multiplexer module, I tested using a 2 bit counter, which meant each digit changed after 4 clock cycles. 
+										This allowed me to more easily write a series of test vectors and know exactly when the digits would switch. I made sure to test when the DIP switch input changed in the middle of 
+										either digit being on as well as when the DIP switch input changed as which digit was on changed. For the led controller module, I made sure to test a variety of sums. The outputs to 
+										these tests are shown below. 
+									</p>
+								</div>		
+								
+								<div style="display: block;">
+									<p>
+										<span class="image fit"><img src="images/Lab2/LAB2_LED_TEST.png" alt=""/> <em>The ModelSim waveform output of the seg_multiplexer testbench</em></span>
+										
+									</p>
+								</div>	
+
+								<div style="display: block;">
+									<p>
+										<span class="image fit"><img src="images/lab2/LAB2_SEG_TEST.png" alt=""/> <em>The ModelSim waveform output of the led_controller testbench</em></span>
+									</p>
+								</div>	
+
+								<div style="display: inline-block;">
+									<p>
+										After testing, I successfully compiled and uploaded the Verilog modules to the Upduino. The design meets all of the <a href = "https://hmc-e155.github.io/lab/lab2/specs.html">requirements</a> and passed all testing.
+										There was a bit of a hiccup with a broken jumper cable causing floating values, but I can now confidently say this design works completely. 								
+										<br>
+										This lab took me 14 hours in total. 
+									</p>
+								</div>
+
+							</div>
+						</div>
+					</div>
+
+						<!-- Footer -->
+						<footer id="footer">
+							<div class="inner">
+								<section>
+									<h2>Get in touch</h2>
+									
+									<form method="post" action="https://formspree.io/f/xldrgnlg">
+										<div class="fields">
+											<div class="field half">
+												<input type="text" name="name" id="name" placeholder="Name" />
+											</div>
+											<div class="field half">
+												<input type="email" name="email" id="email" placeholder="Email" />
+											</div>
+											<div class="field">
+												<textarea name="message" id="message" placeholder="Message"></textarea>
+											</div>
+										</div>
+										<ul class="actions">
+											<li><input type="submit" value="Send" class="primary" /></li>
+										</ul>
+									</form>
+								</section>
+								<section>
+									<h2>Follow</h2>
+									<ul class="icons">
+										<li><a href="https://www.linkedin.com/in/marina-ring/" class="icon brands style2 fa-linkedin"><span class="label">Twitter</span></a></li>
+										<li><a href="mailto:mring@g.hmc.edu" class="icon solid style2 fa-envelope"><span class="label">Email</span></a></li>
+									</ul>
+								</section>
+								<ul class="copyright">
+									<li>&copy; Untitled. All rights reserved</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+								</ul>
+							</div>
+						</footer>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
