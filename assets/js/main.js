@@ -34,9 +34,14 @@
 			let scrollY = window.scrollY
 			let bottomHeight = window.innerHeight
 			
-			if(scrollY / bottomHeight <= 1){
-			  one.style.opacity = 1 - 1*( scrollY / bottomHeight )
-			  two.style.opacity = 1 - 1*( scrollY / bottomHeight )
+			if (scrollY / bottomHeight <= 1){
+				try {
+			 		one.style.opacity = 1 - 1*( scrollY / bottomHeight )
+			  		two.style.opacity = 1 - 1*( scrollY / bottomHeight )
+				}
+				catch(err) {
+					// do nothing
+				}
 			}
 		  })
 
