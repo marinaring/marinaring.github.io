@@ -6,7 +6,7 @@
 -->
 <html>
 	<head>
-		<title>Lab 2</title>
+		<title>Lab 3</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 		<link rel="stylesheet" href="assets/css/main.css" />
@@ -53,17 +53,18 @@
 					<div id="main">
 						<div class="inner">
 							<div>
-								<h1 id="fade1">Lab 2: Multiplexed 7-Segment Display</h1>
+								<h1 id="fade1">Lab 3: Keypad Scanner</h1>
 							</div>
 							
 							<h2>Introduction</h2>
 							
-								<p> This lab introduced us to managing I/O on our FPGA by turning the single seven segment display from <a href="lab1.html">Lab 1</a> into a dual seven segment
-									display! Instead of doubling the amount of I/O pins used to program the display, we were tasked with implementing time-multiplexing to control the two displays.
-									This lab was important in teaching us how to properly manage clocks and ensuring we followed synchronous sequential design principles even as our hardware becomes more complex. 
-									See the <a href="https://hmc-e155.github.io/lab/lab2/">E155 Lab 2 Page</a> for a more detailed overview of the specifications and instructions for this lab.</p> 
+								<p> In this lab, I was required to take my multiplexed display from <a href="lab2.html">Lab 2</a> and combine it with a keypad to display user inputs. 
+									This lab was really a test in implementing good synchronous sequential design, it forced you to really think out and plan the design in order to not violate those
+									design principles. In addition to the multiplexing of the display, I needed to implement a scanning system to read the matrix keypad as well as a method
+									for switch debouncing. I also needed to be very thorough with the simulations of my design to catch timing and other kinds of pesky bugs!
+									See the <a href="https://hmc-e155.github.io/lab/lab3/">E155 Lab 3 Page</a> for a more detailed overview of the specifications and instructions for this lab.</p> 
 								
-								<p>	All code written for this lab can be found on my <a href = "https://github.com/marinaring/E155-lab2">E155 Lab 2 Repository on Github.</a></p>
+								<p>	All code written for this lab can be found on my <a href = "https://github.com/marinaring/E155-lab3">E155 Lab 3 Repository on Github.</a></p>
 								
 
 							<br>
@@ -77,29 +78,30 @@
 									<p>
 										<span class="image left" style="max-width:25%;"><img src="images/Lab2/PROTOBOARD.jpg" alt="" /> <em>A picture of my completed circuit!</em> </span>
 										
-										On the left is a picture of my final circuit setup, the circuit diagram for this circuit is shown at the bottom of this section. Two transistors were used to carry out 
-										the time-multiplexing as a signal was sent to each controlling which display received power at any moment. Since the gate of the transistors were
-										connected to I/O on the FPGA, it was important to ensure there was not too much current being drawn from the FPGA pins. I used the following expression
-										to calculate resistor values. From <a href = "https://hmc-e155.github.io/assets/doc/FPGA-DS-02008-2-0-iCE40-UltraPlus-Family-Data-Sheet.pdf">the datasheet for the FPGA</a>, the maximum current
-										draw for maintaining logic levels is 8 mA. 
-										\[ R = (V_{cc} - V_{LED}) / I_{max} \]
-										\[ R = (3.3V - 0.7V) / 0.008A = 325 Ohms\] 
+										On the left is a picture of my final circuit setup, the circuit diagram for this circuit is shown at the bottom of this section. The circuitry for the seven segment display remained unchanged from 
+										the previous lab. Two 2N3906 PNP transistors were used along with two 1.2kOhm resistors to provide power to the dual display and stay below maximum current draw for the FPGA. See my write up for 
+										<a href = "lab2.html">Lab 2</a> to learn more about these design choices! I used internal pull up resistors of 3.3kOhms in the FPGA to complete the switch circuits for the matrix keypad.
 										<br>
-
-										I ended up using a resistor of 1.2 kOhms just to be safe. I also made sure that the green LEDs I used to display the sum of two numbers had the appropriate current-limiting resistors. 
-										I used Ohm's Law again, considering a 2V voltage drop across one LED. 
-										\[ R = (V_{cc} - V_{LED})/ I \]
-										\[ R = 3.3V - 2V/ 0.01A = 130 Ohms \]
-								
+							
 									</p>
+								</div>
+									<p>
+										<span class="image left" style="max-width:25%;"><img src="images/Lab2/PROTOBOARD.jpg" alt="" /> <em>A picture of my completed circuit!</em> </span>
+										One important consideration when working with something like the keypad matrix is switch bouncing. When a button is pressed, the input may take some time to settle. On the left is an image of the 
+										oscilliscope reading voltage at one of the columns of the keypad when a button is pressed. As you can see, the input remains unstable for around 1 millisecond. Considering a 24 MHz signal, that consists of
+										\[N = 10^{-3} s * 24*10^{6} 1/s = 24000 clock cycles \]
+									</p>
+								<div>
+
 								</div>
 
 								<div style="display: inline-block;">
 									<p>
 										
-										The circuit schematic below details the Upduino pins I used to power the display and LEDs. Since the MAN6410 is a common anode display, 3.3V is supplied at the
+										The circuit schematic below details the Upduino pins I used to power the display and keypad. Since the MAN6410 is a common anode display, 3.3V is supplied at the
 										anode and each pin acts as a cathode. To turn a segment on, a pin is set to low or 0 and so current can flow down that path. To turn a segment off, the pin is 
-										set back to high or 1. The pin assigments are displayed in the circuit diagrams below. 
+										set back to high or 1. I used the internal pullup resistors in the FPGA for the keypad display, so a low input, or 0, from one of the columns indicates the switch is closed and a button is pressed 
+										in the keypad. A high input, or 1, indicates that the switch is open and the button is not pressed. The pin assigments are displayed in the circuit diagrams below. 
 
 										<br><br>
 									</p>
