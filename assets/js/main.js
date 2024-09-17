@@ -26,24 +26,27 @@
 			}, 100);
 		});
 
-		const one = document.getElementById('fade1')
-		const two = document.getElementById('fade2')
-		const three = document.getElementById('fade3')
-		const four = document.getElementById('fade4')
-		window.addEventListener('scroll', () => {
-			let scrollY = window.scrollY
-			let bottomHeight = window.innerHeight
-			
-			if (scrollY / bottomHeight <= 1){
-				try {
-			 		one.style.opacity = 1 - 1*( scrollY / bottomHeight )
-			  		two.style.opacity = 1 - 1*( scrollY / bottomHeight )
+		try {
+			const one = document.getElementById('fade1')
+			const two = document.getElementById('fade2')
+			const three = document.getElementById('fade3')
+			const four = document.getElementById('fade4')
+
+			window.addEventListener('scroll', () => {
+				let scrollY = window.scrollY
+				let bottomHeight = window.innerHeight
+				
+				if(scrollY / bottomHeight <= 1){
+					
+					one.style.opacity = 1 - 1*( scrollY / bottomHeight )
+					two.style.opacity = 1 - 1*( scrollY / bottomHeight )
+					
 				}
-				catch(err) {
-					// do nothing
-				}
-			}
-		  })
+			})
+		}
+		catch(err) {
+			// in case there are no objects of the fade Ids, do nothing
+		}
 
 	// Touch?
 		if (browser.mobile)
