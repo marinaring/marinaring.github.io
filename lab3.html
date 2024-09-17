@@ -1,0 +1,244 @@
+<!DOCTYPE HTML>
+<!--
+	Phantom by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Lab 3</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+		<script id="MathJax-script" async
+          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  		</script>
+	</head>
+	<body class="is-preload">
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<div class="inner">
+
+							
+
+							<!-- Nav -->
+								<nav>
+									<ul>
+										<li><a href="#menu">Menu</a></li>
+									</ul>
+								</nav>
+
+						</div>
+					</header>
+
+				<!-- Menu -->
+					<nav id="menu">
+						<h2>Menu</h2>
+						<ul>
+							<li><a href="index.html">Home</a></li>
+							<li><a href="projects.html">Academic Projects</a>
+								<ul>
+									<li><a href="microps.html">Microprocessor Systems Blog</a></li>
+								</ul>
+							</li>
+							<li><a href="industry.html">Industry Experience</a></li>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+							<div>
+								<h1 id="fade1">Lab 3: Keypad Scanner</h1>
+							</div>
+							
+							<h2>Introduction</h2>
+							
+								<p> In this lab, I was required to take my multiplexed display from <a href="lab2.html">Lab 2</a> and combine it with a keypad to display user inputs. 
+									This lab was really a test in implementing good synchronous sequential design, it forced you to really think out and plan the design in order to not violate those
+									design principles. In addition to the multiplexing of the display, I needed to implement a scanning system to read the matrix keypad as well as a method
+									for switch debouncing. I also needed to be very thorough with the simulations of my design to catch timing and other kinds of pesky bugs!
+									See the <a href="https://hmc-e155.github.io/lab/lab3/">E155 Lab 3 Page</a> for a more detailed overview of the specifications and instructions for this lab.</p> 
+								
+								<p>	All code written for this lab can be found on my <a href = "https://github.com/marinaring/E155-lab3">E155 Lab 3 Repository on Github.</a></p>
+								
+
+							<br>
+							
+							<div style="display:inline-block; padding-bottom: 2em;">
+								<div class="box" style="display: flex; align-items: center; justify-content: left;">
+									<div><h3 style="margin:0">Setup and Circuitry</h3></div>
+								</div>
+
+								<div style="display: inline-block;">
+									<p>
+										<span class="image left" style="max-width:25%;"><img src="images/Lab2/PROTOBOARD.jpg" alt="" /> <em>A picture of my completed circuit!</em> </span>
+										
+										On the left is a picture of my final circuit setup, the circuit diagram for this circuit is shown at the bottom of this section. The circuitry for the seven segment display remained unchanged from 
+										the previous lab. Two 2N3906 PNP transistors were used along with two 1.2kOhm resistors to provide power to the dual display and stay below maximum current draw for the FPGA. See my write up for 
+										<a href = "lab2.html">Lab 2</a> to learn more about these design choices! I used internal pull up resistors of 3.3kOhms in the FPGA to complete the switch circuits for the matrix keypad.
+										<br>
+							
+									</p>
+								</div>
+									<p>
+										<span class="image left" style="max-width:25%;"><img src="images/Lab2/PROTOBOARD.jpg" alt="" /> <em>A picture of my completed circuit!</em> </span>
+										One important consideration when working with something like the keypad matrix is switch bouncing. When a button is pressed, the input may take some time to settle. On the left is an image of the 
+										oscilliscope reading voltage at one of the columns of the keypad when a button is pressed. As you can see, the input remains unstable for around 1 millisecond. Considering a 24 MHz signal, that consists of
+										\[N = 10^{-3} s * 24*10^{6} 1/s = 24000 clock cycles \]
+									</p>
+								<div>
+
+								</div>
+
+								<div style="display: inline-block;">
+									<p>
+										
+										The circuit schematic below details the Upduino pins I used to power the display and keypad. Since the MAN6410 is a common anode display, 3.3V is supplied at the
+										anode and each pin acts as a cathode. To turn a segment on, a pin is set to low or 0 and so current can flow down that path. To turn a segment off, the pin is 
+										set back to high or 1. I used the internal pullup resistors in the FPGA for the keypad display, so a low input, or 0, from one of the columns indicates the switch is closed and a button is pressed 
+										in the keypad. A high input, or 1, indicates that the switch is open and the button is not pressed. The pin assigments are displayed in the circuit diagrams below. 
+
+										<br><br>
+									</p>
+
+								</div>
+
+								<div style="display: block;">
+									<span class="image left" style="max-width:50%;"><img src="images/Lab3/LAB3_SEGMENT_CIRCUIT.png" alt="" /> </span>
+									<span class="image left" style="max-width:50%;"><img src="images/Lab2/CIRCUIT_LED_SWITCH.png" alt="" /> </span>
+											
+								</div>	
+							</div>
+
+							
+								
+							<br>
+
+							<div style="display: inline-block; padding-bottom: 4em;">
+								<div class="box" style="display: flex; align-items: center; justify-content: left;">
+									<div><h3 style="margin:0">Software and Verification</h3></div>
+								</div>
+								
+								<div style="display: inline-block;">
+									<p>
+										<span class="image left" style = "max-width: 50%"><img src="images/Lab3/BLOCK_DIAGRAM.png" alt="" /> <em>A block diagram model for this system.</em> </span>
+										
+										On the left is a block diagram visualizing the Verilog modules that I used in this lab and their inputs, outputs, and connections. I created separate modules to implement clock slow down (digital_counter), 
+										synchronization of asynchronous inputs (synchronizer), reading keypad inputs and converting to a value (digit_controller), and then converting that value to be displayed on the dual seven segment display. 
+										The multiplexing module for the dual seven segment display was largely reused from <a href="lab2.html">Lab 2</a>. The module was slightly modified to account for a slower clock, as discussed later in this section. 
+										Row scanning was separated as a module in order to isolate any errors in that process. In this lab, timing is particularly important, so creating submodules helped me catch errors early on. 
+										
+									</p>
+								</div>
+
+								<div style="display: inline-block;">
+									<p>
+										
+										I chose to use a slower clock signal for the whole system in this lab, I found the 24 MHz clock signal from the FPGA too fast for keypad scanning. The propagation time through the circuitry is slower than the clock switching, 
+										causing unpredictable behavior. Instead, I slowed down the clock in a clock divider module called digital_counter using an eight bit counter. The clock is high once the most significant digit is 1 and low otherwise. I aimed for a 
+										frequency of approximately 100 kHz for my clock.
+										\[ f_{digits} = \frac{f_{clk}}{2^{N}} \]
+										\[ f_{digits} = \frac{24*10^{6}}{2^{8}} = ~93 kHz\]
+										
+										From <a href="lab2.html">Lab 2</a>, I found that multiplexing the display also needed to occur at a lower frequency as, again, the propagation time through the circuit is slower than the clock switching, causing the 
+										displayed digits to "bleed" together. From that lab, I slowed multiplexing from the 24 MHz FPGA clock frequency to 3 kHz using a 12 bit counter. Since I slowed down the clock before passing it into the multiplexing
+										module, I needed to lower the amount bits of the counter to slow down to the same 1~5kHz range I identified in the previous lab. I chose a 5 bit counter to produce a frequency of around 1.5 kHz. The digit that is powered changes once the counter overflows, or after each digit is 1. 
+										\[ f_{digits} = \frac{f_{clk}}{(2*2^{N}} \]
+										\[ f_{digits} = \frac{100*10^{3}}{2*2^{5}} = 1562.5 kHz\]
+	
+		
+									</p>
+	
+								</div>
+
+								<div style="display: inline-block;">
+									<p>										
+										I wrote a testbench for each module dealing with the keypad with corresponding test vectors. See <a href="lab2.html">Lab 2</a> for more information on how I tested the dual seven segment display. 
+										The outputs to these tests are shown below. 
+									</p>
+								</div>		
+								
+								<div style="display: block;">
+									<p>
+										<span class="image fit"><img src="images/Lab3/TESTBENCH_ROW_NEXTSTATE.png" alt=""/> <em>The ModelSim waveform output of the row_nextstate testbench</em></span>
+										
+									</p>
+								</div>	
+
+								<div style="display: block;">
+									<p>
+										<span class="image fit"><img src="images/Lab3/TESTBENCH_ROW_SCANNER.png" alt=""/> <em>The ModelSim waveform output of the row_scanner testbench</em></span>
+									</p>
+								</div>	
+
+								<div style="display: block;">
+									<p>
+										<span class="image fit"><img src="images/Lab3/TESTBENCH_DIG_CONTROLLER.png" alt=""/> <em>The ModelSim waveform output of the dig_controller testbench</em></span>
+									</p>
+								</div>	
+
+								<div style="display: inline-block;">
+									<p>
+										After testing, I successfully compiled and uploaded the Verilog modules to the Upduino. The design does not yet meet all of the <a href = "https://hmc-e155.github.io/lab/lab2/specs.html">requirements</a>. 
+										Currently the last row and only the last row does not work. There are some floating value issues.  
+										<br>
+										This lab is still in progress!
+									</p>
+								</div>
+
+							</div>
+						</div>
+					</div>
+
+						<!-- Footer -->
+						<footer id="footer">
+							<div class="inner">
+								<section>
+									<h2>Get in touch</h2>
+									
+									<form method="post" action="https://formspree.io/f/xldrgnlg">
+										<div class="fields">
+											<div class="field half">
+												<input type="text" name="name" id="name" placeholder="Name" />
+											</div>
+											<div class="field half">
+												<input type="email" name="email" id="email" placeholder="Email" />
+											</div>
+											<div class="field">
+												<textarea name="message" id="message" placeholder="Message"></textarea>
+											</div>
+										</div>
+										<ul class="actions">
+											<li><input type="submit" value="Send" class="primary" /></li>
+										</ul>
+									</form>
+								</section>
+								<section>
+									<h2>Follow</h2>
+									<ul class="icons">
+										<li><a href="https://www.linkedin.com/in/marina-ring/" class="icon brands style2 fa-linkedin"><span class="label">Twitter</span></a></li>
+										<li><a href="mailto:mring@g.hmc.edu" class="icon solid style2 fa-envelope"><span class="label">Email</span></a></li>
+									</ul>
+								</section>
+								<ul class="copyright">
+									<li>&copy; Untitled. All rights reserved</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+								</ul>
+							</div>
+						</footer>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
