@@ -1,0 +1,233 @@
+<!DOCTYPE HTML>
+<!--
+	Phantom by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Lab 4</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+		<script id="MathJax-script" async
+          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  		</script>
+	</head>
+	<body class="is-preload">
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<div class="inner">
+
+							
+
+							<!-- Nav -->
+								<nav>
+									<ul>
+										<li><a href="#menu">Menu</a></li>
+									</ul>
+								</nav>
+
+						</div>
+					</header>
+
+				<!-- Menu -->
+					<nav id="menu">
+						<h2>Menu</h2>
+						<ul>
+							<li><a href="index.html">Home</a></li>
+							<li><a href="projects.html">Academic Projects</a>
+								<ul>
+									<li><a href="microps.html">Microprocessor Systems Blog</a></li>
+								</ul>
+							</li>
+							<li><a href="industry.html">Industry Experience</a></li>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+							<div>
+								<h1 id="fade1">Lab 4: Digital Audio</h1>
+							</div>
+							
+							<h2>Introduction</h2>
+							
+								<p> This lab was an introduction to working with our microcontroller boards. After learning how to read a reference manual and datasheet and learning how clocks work on a microcontroller, 
+									we were tasked with configuring clocks, timers, and I/O  in order to drive a speaker to play a song. A lot of this lab required close reading and attention to detail. It was a good lesson
+									in taking my time and using the Segger Embedded Studio debugger to my advantage. I had a lot of fun with this lab, in the end playing "September" by Earth, Wind, and Fire on the speaker!
+									See the <a href="https://hmc-e155.github.io/lab/lab4/">E155 Lab 4 Page</a> for a more detailed overview of the specifications and instructions for this lab.</p> 
+								
+								<p>	All code written for this lab can be found on my <a href = "https://github.com/marinaring/E155-lab4">E155 Lab 4 Repository on Github.</a></p>
+								
+
+							<br>
+							
+							<div style="display:inline-block; padding-bottom: 2em;">
+								<div class="box" style="display: flex; align-items: center; justify-content: left;">
+									<div><h3 style="margin:0">Setup and Circuitry</h3></div>
+								</div>
+
+								<div style="display: inline-block;">
+									<p>
+										<span class="image left" style="max-width:50%;"><img src="images/Lab4/CIRCUIT DIAGRAM.png" alt="" /> </span>
+
+										The circuit diagram for this circuit is shown to the left. The circuit is relatively simple: it contains an LM386 audio amplifier to drive the speaker
+										while ensuring that current draw stays within allowable levels for the microcontroller as well as a potentiometer to allow for volume control. The potentiometer especially came in handy while testing the 
+										code over and over again!
+										<br>
+							
+									</p>
+								</div>
+									
+
+
+								
+							</div>
+
+							<br>
+
+							<div style="display: inline-block; padding-bottom: 4em;">
+								<div class="box" style="display: flex; align-items: center; justify-content: left;">
+									<div><h3 style="margin:0">Coding and Timing</h3></div>
+								</div>
+								
+								<div style="display: inline-block;">
+									<p>
+										In order to output a square wave signal from the microcontroller, I took advantage of the Timer 15 and Timer 16 registers. Both are able to be configured to a PWM mode and connected to a GPIO pin 
+										in alternate function mode in order to produce a square wave output. Each Timer has its own counter that is compared to a value set when configuring the register. When the counter is less than this 
+										compare/contrast value, it outputs a high signal (or 1). When the counter is greater or equal to this compare/contrast value, it outputs a low signal (or 0). 
+										<br>
+									</p>
+									<p>
+										For this lab, we were tasked with producing pitches with accuracies within 1% across the frequency range of 220-1000 Hz. To achieve this constraint, I ran a timing analysis using 
+										Excel and the equations listed below. Because I used phase-locked-loop to clock the microcontroller at 80 MHz, I needed to use a prescaler to produce these lower frequencies. The equations I used 
+										are detailed below. 
+
+										
+										
+										\[ f_{CNT} = \frac{f_{clk}}{PSC + 1} \]
+										\[ \frac{1}{f_{sound}} = \frac{1}{f_{CNT}} * cycles \]
+										\[ cycles = \frac{f_{clk}}{f_{sound} (PSC + 1)} \]
+										\[ f_{sound} = \frac{f_{sound}}{cycles (PSC + 1)} \]
+										
+									</p>
+									<p>
+										The minimum and maximum duration and frequency supported can be calculated by considering when the compare/contrast value is set to 0 and when it is set to its max value, which is $2^{16} - 1 = 65535$ for a
+										16 bit register.  
+									</p>
+									<p>
+										Below, I have included the table detailing the values I calculated to ensure that the frequencies outputted by Timer 16 produced pitches in the range of 220-1000 Hz within 1% accuracy. I chose
+										to use a prescaler value of 999 for Timer 16, which output a PWM signal to the speaker. Given a prescaler value of 999, the maximum frequency able to be produced is 80 kHz using a compare/contrast value of 0. 
+										The minimum frequency able to be produced is 1.22 Hz using a compare/contrast value of 65535. 
+									</p>
+	
+								</div>
+								<div style="display: block;">
+									<p>
+										<span class="image fit"><img src="images/Lab4/TIMING TABLE.png" alt=""/></span>
+										
+									</p>
+								</div>	
+
+								<div style="display: inline-block;">
+									<p>
+										I performed a similar analysis in order to determine the prescaler value needed to ensure proper durations for all notes. A table is shown below detailing the calculated values. I chose to use a prescaler
+										of 1999 for Timer 15, which was used to produce delays in milliseconds. Given a prescaler value of 1999, the maximum duration able to be produced is 1.64 seconds using a compare/contrast value of 65535. 
+										The minimum duration able to be produced is 0.025 milliseconds. 
+									</p>
+								</div>
+
+								<div style="display: flex; justify-content: center;">
+									<p>
+										<span class="image fit" style = "max-width: 90%; "><img src="images/Lab4/DELAY TIMING TABLE.png" alt=""/></span>
+										
+									</p>
+								</div>	
+								
+							<br>
+
+							<div style="display: inline-block; padding-bottom: 4em;">
+								<div class="box" style="display: flex; align-items: center; justify-content: left;">
+									<div><h3 style="margin:0">Verification</h3></div>
+								</div>
+								
+								<div style="display: inline-block;">
+									<p>
+										I am proud to present a video of my final results below! First the microcontroller plays Fur Elise, then it plays September by Earth, Wind, and Fire. I used the website 
+										<a href ="https://www.hooktheory.com/">Hook Theory</a> to get the notes for the song, and then transcribed it using the chart on the <a href = "https://hmc-e155.github.io/lab/lab4">Lab 4 Page</a>.                                                                                                                                                 
+										                                                                              
+									</p>
+								</div>
+
+
+								<div style="display: block; justify-content: center;">
+									<iframe width="700" height="500"
+										src="https://youtube.com/embed/LK2xjtAS-VA?si=crNhF8bAX8tUc5LU">
+									</iframe>
+								</div>
+
+								<div style="display: inline-block;">
+									<p>
+										I successfully compiled and uploaded my code to the STM32 microcontroller. The design meets all of the <a href = "https://hmc-e155.github.io/lab/lab4/specs.html">requirements</a>. 
+										<br>
+										This lab took me an estimated 15 hours to complete. 
+									</p>
+								</div>
+
+							</div>
+						</div>
+					</div>
+				</div>
+
+						<!-- Footer -->
+					<footer id="footer">
+						<div class="inner">
+							<section>
+								<h2>Get in touch</h2>
+								<form method="post" action="https://formspree.io/f/xldrgnlg">
+									<div class="fields">
+										<div class="field half">
+											<input type="text" name="name" id="name" placeholder="Name" />
+										</div>
+										<div class="field half">
+											<input type="email" name="email" id="email" placeholder="Email" />
+										</div>
+										<div class="field">
+											<textarea name="message" id="message" placeholder="Message"></textarea>
+										</div>
+									</div>
+									<ul class="actions">
+										<li><input type="submit" value="Send" class="primary" /></li>
+									</ul>
+								</form>
+							</section>
+							<section>
+								<h2>Follow</h2>
+								<ul class="icons">
+									<li><a href="https://www.linkedin.com/in/marina-ring/" class="icon brands style2 fa-linkedin"><span class="label">LinkedIn</span></a></li>
+									<li><a href="mailto:mring@g.hmc.edu" class="icon solid style2 fa-envelope"><span class="label">Email</span></a></li>
+								</ul>
+							</section>
+							<ul class="copyright">
+								<li>&copy; Untitled. All rights reserved</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+							</ul>
+						</div>
+					</footer>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
