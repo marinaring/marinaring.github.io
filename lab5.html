@@ -1,0 +1,266 @@
+<!DOCTYPE HTML>
+<!--
+	Phantom by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Lab 5</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+		<script id="MathJax-script" async
+          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  		</script>
+	</head>
+	<body class="is-preload">
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<div class="inner">
+
+							
+
+							<!-- Nav -->
+								<nav>
+									<ul>
+										<li><a href="#menu">Menu</a></li>
+									</ul>
+								</nav>
+
+						</div>
+					</header>
+
+				<!-- Menu -->
+					<nav id="menu">
+						<h2>Menu</h2>
+						<ul>
+							<li><a href="index.html">Home</a></li>
+							<li><a href="projects.html">Academic Projects</a>
+								<ul>
+									<li><a href="microps.html">Microprocessor Systems Blog</a></li>
+								</ul>
+							</li>
+							<li><a href="industry.html">Industry Experience</a></li>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+							<div>
+								<h1 id="fade1">Lab 5: Interrupts</h1>
+							</div>
+							
+							<h2>Introduction</h2>
+							
+								<p> After familiarizing ourselves with the microcontroller in <a href="lab4.html">Lab 4</a>, we dove into exploring another functionality of microcontrollers: interrupts. 
+									In this lab, we used interrupts in conjuction with a quadrature motor encoder to determine the speed of a motor at various voltages. This lab taught us how to properly
+									read and process fast changes in order to make the most accurate measurements as possible using our STM32 microcontrollers. 
+									See the <a href="https://hmc-e155.github.io/lab/lab5/">E155 Lab 5 Page</a> for a more detailed overview of the specifications and instructions for this lab.</p> 
+								
+								<p>	All code written for this lab can be found on my <a href = "https://github.com/marinaring/E155-lab5">E155 Lab 5 Repository on Github.</a></p>
+								
+
+							<br>
+							
+							<div style="display:inline-block; padding-bottom: 2em;">
+								<div class="box" style="display: flex; align-items: center; justify-content: left;">
+									<div><h3 style="margin:0">Setup and Circuitry</h3></div>
+								</div>
+
+								<div style="display: inline-block;">
+									<p>
+										
+										The circuitry for this lab was even simpler than the last lab. I was able to connect the motor encoder directly to the MCU GPIO pins. A variable DC voltage +/- Vss was applied
+										at the positive terminal of the motor using a power supply. A diagram is shown below along with a photo of the set up in real life. 
+										<br>
+							
+									</p>
+								</div>
+
+								<div style="display: block;">
+									<span class="image left" style="max-width:50%;"><img src="images/Lab5/Lab 5 Circuit Diagram.png" alt="" /> </span>
+									<span class="image left" style="max-width:50%;"><img src="images/Lab5/CIRCUIT.jpg" alt="" /> </span>
+								</div>	
+									
+
+
+								
+							</div>
+
+							<br>
+
+							<div style="display: inline-block; padding-bottom: 4em;">
+								<div class="box" style="display: flex; align-items: center; justify-content: left;">
+									<div><h3 style="margin:0">Coding and Calculations</h3></div>
+								</div>
+								
+								<div style="display: inline-block;">
+									<p>
+										I used interrupts in order to measure motor speed quickly and accurately. Interrupts allowed me to overcome limitations of direct polling, as my measurements were taken as soon as encoder signals changed, 
+										in comparison to polling. If I used polling, the speed of taking measurements would depend on the speed it would take other commands in my loop to evaluate. I could run into timing issues, 
+										potentially resulting in a reported slower-than-expected motor speed. By using interrupts, I ensure that my measurements correspond exactly to when the encoder signals change and that I can 
+										make measurements anytime the encoder signals change, even if other code is evaluating. 
+									</p>
+									<p>
+										In order to get the most accurate measurement of speed, I used all edges of the pulse. I set up four interrupts, one for the rising and falling edge for each of the two signals coming from the encoder. 
+										The first signal coming from the encoder, "Encoder A", was used to reset counters that kept track of time between edges. This signal was treated as the first edge of our signal.
+										The second signal coming from the encoder, "Encoder B", was treated as the second edge of our signal. It was used to check the counter values since they had been reset and to determine the 
+										direction of our motor spinning. The flowchart for the program I implemented is shown below. 
+										
+										<br>
+									</p>
+									
+								</div>
+								<div style="display: block;">
+									<p>
+										<span class="image fit"><img src="images/Lab5/PROGRAM_FLOWCHART.png" alt=""/></span>
+										
+									</p>
+								</div>	
+
+								<div style="display: inline-block;">
+									<p>
+										I calculated speed of the motor by tracking how high a counter iterated between the edges of the encoder signals. Below is a graphic illustrating how the two encoder signals compare. 
+									</p>
+								</div>
+
+								<div style="display: flex; justify-content: center;">
+									<p>
+										<span class="image fit" style = "max-width: 1000%; "><img src="images/Lab5/ENCODER_SIGNALS.jpg" alt=""/></span>
+										
+									</p>
+								</div>
+
+								<div style="display: inline-block;">
+									<p>
+										Based on this diagram, we can come up with two equations for pulse length in terms of clock periods: 
+										\[ l_{pulse, CCW} = \frac{4}{3} * 0.5 * (counter1 + counter2) \]  
+										\[ l_{pulse, CW} = 4 * 0.5 * (counter1 + counter2) \]
+
+										These equations use an average between measuring based on distance between rising edges and distance between falling edges in order to be more responsive to sudden changes.
+										Then, pulse length can be turned into a speed of revolutions per minute based on the specs of the motor, where there are 120 pulses per revolution, and converting pulse lengths into seconds. 
+										\[ v_{motor} = \frac{f_{clk}}{120 * l_{pulse}} \]
+									</p>
+								</div>	
+								
+							<br>
+
+							<div style="display: inline-block; padding-bottom: 4em;">
+								<div class="box" style="display: flex; align-items: center; justify-content: left;">
+									<div><h3 style="margin:0">Verification</h3></div>
+								</div>
+								
+								<div style="display: inline-block;">
+									<p>
+										I used the oscilliscope to verify the readings that were being output to the console window. I tested three different
+										speeds using three different input voltages to the motor: 4V, 10V, and 15V.
+										<br>
+									</p>
+
+									<h3> 4V - </h3>
+								</div>
+							
+								<div class="box alt">
+									<div class="row gtr-uniform">
+										<div class="col-7"><span class="image banner"><img style="height:100%" src="images/Lab5/4V to Motor OSC.png" alt="" /></span></div>
+										<div class="col-5"><span class="image banner"><img style="height:100%" src="images/Lab5/4V to Motor.png" alt="" /></span></div>
+									</div>
+								</div>
+
+								<div style="display: inline-block;">
+									<h3> 10V - </h3>
+								</div>
+
+								<div class="box alt">
+									<div class="row gtr-uniform">
+										<div class="col-7"><span class="image banner"><img style="height:100%" src="images/Lab5/10V to Motor OSC.png" alt="" /></span></div>
+										<div class="col-5"><span class="image banner"><img style="height:100%" src="images/Lab5/10 V to Motor.png" alt="" /></span></div>
+									</div>
+								</div>
+
+								<div style="display: inline-block;">
+									<h3> 15V - </h3>
+								</div>
+
+								<div class="box alt">
+									<div class="row gtr-uniform">
+										<div class="col-7"><span class="image banner"><img style="height:100%" src="images/Lab5/15V to Motor OSC.png" alt="" /></span></div>
+										<div class="col-5"><span class="image banner"><img style="height:100%" src="images/Lab5/15 V to Motor.png" alt="" /></span></div>
+									</div>
+								</div>
+
+								<div style="display: inline-block;">
+									<p>
+										In these images, you can see that the values for the speed of the motor in rev/s generally had a variation of 0.5 rev/s for slower speeds and up to 1 rev/s for faster speeds. 
+										These measurements were taken before implementing an average between measurements taken on the falling edge and measurements taken on the rising edge, so 
+										values became even more stable afterwards. There was also no way for me to guarantee I capture the signal at the same time in the console and the oscilliscope, so 
+										that may explain differences between the oscilliscopes value and the console values. Even so, the values shown on the console and the frequency measured by the oscilliscope matched up fairly well. I also
+										attempted pulsing the voltage into the motor as well as input very high voltages (20 V) and very low voltages (1 V) and still saw good results. 
+									</p>
+								</div>
+
+								<div style="display: inline-block;">
+									<p>
+										Therefore, I can say that I successfully compiled and uploaded my code to the STM32 microcontroller and that the design meets all of the <a href = "https://hmc-e155.github.io/lab/lab5/specs.html">requirements</a>. 
+										<br>
+										This lab took me an estimated 16 hours to complete. 
+									</p>
+								</div>
+
+							</div>
+						</div>
+					</div>
+				</div>
+
+						<!-- Footer -->
+					<footer id="footer">
+						<div class="inner">
+							<section>
+								<h2>Get in touch</h2>
+								<form method="post" action="https://formspree.io/f/xldrgnlg">
+									<div class="fields">
+										<div class="field half">
+											<input type="text" name="name" id="name" placeholder="Name" />
+										</div>
+										<div class="field half">
+											<input type="email" name="email" id="email" placeholder="Email" />
+										</div>
+										<div class="field">
+											<textarea name="message" id="message" placeholder="Message"></textarea>
+										</div>
+									</div>
+									<ul class="actions">
+										<li><input type="submit" value="Send" class="primary" /></li>
+									</ul>
+								</form>
+							</section>
+							<section>
+								<h2>Follow</h2>
+								<ul class="icons">
+									<li><a href="https://www.linkedin.com/in/marina-ring/" class="icon brands style2 fa-linkedin"><span class="label">LinkedIn</span></a></li>
+									<li><a href="mailto:mring@g.hmc.edu" class="icon solid style2 fa-envelope"><span class="label">Email</span></a></li>
+								</ul>
+							</section>
+							<ul class="copyright">
+								<li>&copy; Untitled. All rights reserved</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+							</ul>
+						</div>
+					</footer>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
