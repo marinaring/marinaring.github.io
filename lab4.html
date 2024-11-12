@@ -94,7 +94,7 @@
 
 							<div style="display: inline-block; padding-bottom: 4em;">
 								<div class="box" style="display: flex; align-items: center; justify-content: left;">
-									<div><h3 style="margin:0">Coding and Timing</h3></div>
+									<div><h3 style="margin:0">Software and Timing</h3></div>
 								</div>
 								
 								<div style="display: inline-block;">
@@ -114,11 +114,12 @@
 										\[ f_{CNT} = \frac{f_{clk}}{PSC + 1} \]
 										\[ \frac{1}{f_{sound}} = \frac{1}{f_{CNT}} * cycles \]
 										\[ cycles = \frac{f_{clk}}{f_{sound} (PSC + 1)} \]
-										\[ f_{sound} = \frac{f_{sound}}{cycles (PSC + 1)} \]
+										\[ f_{sound} = \frac{f_{clk}}{cycles (PSC + 1)} \]
 										
 									</p>
 									<p>
-										The minimum and maximum duration and frequency supported can be calculated by considering when the compare/contrast value is set to 0 and when it is set to its max value, which is $2^{16} - 1 = 65535$ for a
+										The minimum and maximum duration and frequency supported can be calculated by considering when the compare/contrast value is set to 0 and when it is set to its max value, which is 
+										$$2^{16} - 1 = 65535$$ for a
 										16 bit register.  
 									</p>
 									<p>

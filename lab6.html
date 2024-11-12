@@ -6,7 +6,7 @@
 -->
 <html>
 	<head>
-		<title>Lab 5</title>
+		<title>Lab 6</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 		<link rel="stylesheet" href="assets/css/main.css" />
@@ -53,17 +53,17 @@
 					<div id="main">
 						<div class="inner">
 							<div>
-								<h1 id="fade1">Lab 5: Interrupts</h1>
+								<h1 id="fade1">Lab 6: The Internet of Things and Serial Peripheral Interface</h1>
 							</div>
 							
 							<h2>Introduction</h2>
 							
-								<p> After familiarizing ourselves with the microcontroller in <a href="lab4.html">Lab 4</a>, we dove into exploring another functionality of microcontrollers: interrupts. 
-									In this lab, we used interrupts in conjuction with a quadrature motor encoder to determine the speed of a motor at various voltages. This lab taught us how to properly
-									read and process fast changes in order to make the most accurate measurements as possible using our STM32 microcontrollers. 
-									See the <a href="https://hmc-e155.github.io/lab/lab5/">E155 Lab 5 Page</a> for a more detailed overview of the specifications and instructions for this lab.</p> 
+								<p> In this lab, I learned how to work with and debug different communication protocols, specifically the Serial Peripheral Interface (SPI) communication protocol in this lab.  
+									We used SPI to create communication between a microcontroller and a DS1722 temperature chip. Then, the readings of the chip were displayed on an interactive website
+									communicating with a ESP8266 WiFi development board. It was really cool to be able to connect all these different systems and see them working in harmony. 
+									See the <a href="https://hmc-e155.github.io/lab/lab6/">E155 Lab 6 Page</a> for a more detailed overview of the specifications and instructions for this lab.</p> 
 								
-								<p>	All code written for this lab can be found on my <a href = "https://github.com/marinaring/E155-lab5">E155 Lab 5 Repository on Github.</a></p>
+								<p>	All code written for this lab can be found on my <a href = "https://github.com/marinaring/E155-lab6">E155 Lab 6 Repository on Github.</a></p>
 								
 
 							<br>
@@ -77,8 +77,9 @@
 									<p>
 										<span class="image left" style="max-width:50%;"><img src="images/Lab5/Lab 5 Circuit Diagram.png" alt="" /> </span>
 
-										The circuitry for this lab was even simpler than the last lab. I was able to connect the motor encoder directly to the MCU GPIO pins. A variable DC voltage +/- Vss was applied
-										at the positive terminal of the motor using a power supply. A diagram is shown below along with a photo of the set up in real life. 
+										The ESP8266 WiFi development board was able to be plugged in directly onto female pin headers soldered onto my circuit board. The 
+										DS1722 temperature chip was connected directly through the breakout board. A schematic showing the pin connections is shown on the 
+										left and a picture of the actual setup is shown on the right. 
 										<br>
 							
 									</p>
@@ -156,20 +157,6 @@
 									<div><h3 style="margin:0">Verification</h3></div>
 								</div>
 								
-								<div style="display: inline-block;">
-									<p>
-										I am proud to present a video of my final results below! First the microcontroller plays Fur Elise, then it plays September by Earth, Wind, and Fire. I used the website 
-										<a href ="https://www.hooktheory.com/">Hook Theory</a> to get the notes for the song, and then transcribed it using the chart on the <a href = "https://hmc-e155.github.io/lab/lab4">Lab 4 Page</a>.                                                                                                                                                 
-										                                                                              
-									</p>
-								</div>
-
-
-								<div style="display: block; justify-content: center;">
-									<iframe width="700" height="500"
-										src="https://youtube.com/embed/LK2xjtAS-VA?si=crNhF8bAX8tUc5LU">
-									</iframe>
-								</div>
 
 								<div style="display: inline-block;">
 									<p>

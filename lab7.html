@@ -1,0 +1,302 @@
+<!DOCTYPE HTML>
+<!--
+	Phantom by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Lab 7</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+		<script id="MathJax-script" async
+          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  		</script>
+	</head>
+	<body class="is-preload">
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<div class="inner">
+
+							
+
+							<!-- Nav -->
+								<nav>
+									<ul>
+										<li><a href="#menu">Menu</a></li>
+									</ul>
+								</nav>
+
+						</div>
+					</header>
+
+				<!-- Menu -->
+					<nav id="menu">
+						<h2>Menu</h2>
+						<ul>
+							<li><a href="index.html">Home</a></li>
+							<li><a href="projects.html">Academic Projects</a>
+								<ul>
+									<li><a href="microps.html">Microprocessor Systems Blog</a></li>
+								</ul>
+							</li>
+							<li><a href="industry.html">Industry Experience</a></li>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+							<div>
+								<h1 id="fade1">Lab 7: The Advanced Encryption Standard</h1>
+							</div>
+							
+							<h2>Introduction</h2>
+							
+								<p> In this lab, I implemented the Advanced Encryption Standard (AES) protocol on an FPGA, which communicated with an MCU to receive data to be encrypted and sent encrypted data back.
+									One of the important considerations for this lab was space constraints on the FPGA. I needed to be mindful of this when building the architecture of my system to keep it fast and 
+									efficient. 
+									See the <a href="https://hmc-e155.github.io/lab/lab7/">E155 Lab 7 Page</a> for a more detailed overview of the specifications and instructions for this lab.</p> 
+								
+								<p>	All code written for this lab can be found on my <a href = "https://github.com/marinaring/E155-lab7">E155 Lab 7 Repository on Github.</a></p>
+								
+
+							<br>
+							
+							<div style="display:inline-block; padding-bottom: 2em;">
+								<div class="box" style="display: flex; align-items: center; justify-content: left;">
+									<div><h3 style="margin:0">Setup and Circuitry</h3></div>
+								</div>
+
+								<div style="display: inline-block;">
+									<p>
+										<span class="image left" style="max-width:50%;"><img src="images/Lab7/CIRCUIT_DIAGRAM.png" alt="" /> </span>
+
+	
+										The FPGA was connected to the MCU using the SPI protocol. Additionally, two LEDs, PA9 and PA10, were used to display whether the MCU received the correct or incorrect, respectively, cypertext back
+										for a predefined set of plaintext and encryption key. The wiring diagram is shown on the left. All of these connections already existed on our circuitboard. 
+										I did not need to use any external wiring. 
+										<br>
+							
+									</p>
+			
+								</div>	
+								
+								<div style = "display: inline-block;">
+									<br>
+									<p>
+										Part of the AES protocol calls for values in the cypher text to be subsituted by referencing a predefined array of values.
+										The FPGA does not have enough LUTs in order to create the logic for our encryption and store multiple sets of a preloaded array. Instead,
+										DRAM on the FPGA can be used, but note that an extra clock cycle is needed in order to load values from the array. This adds one clock
+										cycle of delay to each AES round in our system.
+									</p>
+									<br>
+								</div>
+
+
+								
+							</div>
+
+							<br>
+
+							<div style="display: inline-block; padding-bottom: 4em;">
+								<div class="box" style="display: flex; align-items: center; justify-content: left;">
+									<div><h3 style="margin:0">State Definitions and Encodings</h3></div>
+								</div>
+								
+								<div style="display: inline-block;">
+									<span class="image left" style="max-width:50%;"><img src="images/Lab7/PROCESS_CHART.png" alt="" /> </span>
+									<p>
+										AES has four operations it may perform during one round: substituting bytes, shifting rows, mixing columns, and expanding a key and 
+										taking the exclusive or between that key and the current cyphered text. It performs combinations of these operations over ten rounds.
+										In order to control which operations were happening in a certain round and keep track of the current round of the AES process, I implemented
+										a controller. The process diagram is shown on the left to motivate the design of the controller. 
+										<br><br>
+										Note that within each operation, there is a mux that chooses whether the block will output the modified signal or the original signal.
+										
+									</p>
+								</div>
+
+								<div style = "display: inline-block;">
+							
+									<p>
+										Below is an FSM detailing the transitions of my controller. Each state in the FSM represents rounds in the AES process or buffer states. 
+										States 0 and 13 are idle states where the system waits for a load signal to restart the AES cycle. State 12 is a buffer state that allows the final
+										cyphered text to be loaded to the output before sending the done signal in state 13. State 1 is the pre-processing step for AES, where the plain text 
+										input is exclusive or'd with the key input. States 2-11 are the 10 rounds that make up AES. 
+										Each AES round lasts two clock cycles because of a clock cycle delay in the substitution bytes step, so each transition is dictated by a counter to ensure
+										each round waits for one additional clock cycle before transitioning.
+									</p>
+									
+			
+								</div>
+								<div style="display: block;">
+									
+										<span class="image fit"><img src="images/Lab7/STATE_TRANSITION_DIAGRAM.png" alt=""/></span>
+										
+									
+								</div>	
+
+								<div style="display: inline-block;">
+									<p>
+										From this transition diagram, I wrote the following transitions and outputs. The current state of the controller was tied to the AES 
+										round the system was currently performing as well as what steps were enabled for each round. For example, the tenth step of AES (round 10 or state 11)
+										is notable because the mix columns step is not performed. During this round, the enable signal for mix columns is turned off while the enable signals
+										for other AES operations are turned on. During idle states, none of the operations are turned on.
+									</p>
+								</div>
+
+								<div style="display:block;">
+									
+										<span class="image fit" style = "max-width: 90%; "><img src="images/Lab7/STATE_TRANSITION_TABLE.png" alt=""/></span>
+										
+									
+								</div>	
+							
+							<br>
+
+
+							<div style="display: inline-block; padding-bottom: 4em;">
+								<div class="box" style="display: flex; align-items: center; justify-content: left;">
+									<div><h3 style="margin:0">Software and Verification</h3></div>
+								</div>
+								
+								<div style="display: inline-block;">
+				
+									<p>
+										Below is a block diagram detailing my implementation of the AES encryption process on the FPGA. As mentioned previously, 
+										the sub_bytes module loads substituted values from memory, taking an extra clock cycle to complete. All other operations in the AES
+										algorithm are carried out in combinational blocks. Additionally, the round key is computed using sub_bytes so it needs an extra
+										clock cycle to compute. The timing for this is controlled within the aes_controller such that is computed in time to be exclusive or'd with the cyphered
+										text that went through the AES process.
+										<br>
+										
+									</p>
+								</div>
+
+								<div style="display: flex; justify-content: center;">
+									
+									<span class="image fit" style = "max-width: 50%; "><img src="images/Lab7/BLOCK_DIAGRAM.png" alt=""/></span>
+										
+								</div>
+
+								<div style="display: inline-block;">
+									<p>										
+										Each module was tested using a testbench. I will show here only the pictures of the results of simulating aes_core and aes, since these are the larger modules and require all submodules
+										to function correctly in order to work properly. But, through individual testbenches, I found all modules to be funcioning correctly.
+									</p>
+								</div>		
+								
+								<div style="display: block;">
+									<p>
+										<span class="image fit"><img src="images/Lab7/MODELSIM_AES_CORE.png" alt=""/> <em>The ModelSim waveform output of the aes_core testbench</em></span>
+										
+									</p>
+								</div>	
+
+								<div style="display: block;">
+									<p>
+										<span class="image fit"><img src="images/Lab7/MODELSIM_AES_SPI.png" alt=""/> <em>The ModelSim waveform output of the aes_spi testbench</em></span>
+									</p>
+								</div>	
+
+								<div style="display: inline-block;">
+									<p>										
+										After successfully simulating, it was time to move on to validating the hardware. Just because something simulates correctly, does not always mean it will 
+										translate correctly into hardware. I learned that lesson the hard way during this lab! Below are a series of three images that show the output of a logic
+										analyzer for the whole processing cycle (SPI signal in, encrypting, and sending SPI signal back out), a zoomed in portion showing the signals when the MCU 
+										first starts sending data, and a zoomed in portion showing the transition between transmitting, encrypting, and receiving.
+
+										<br><br>
+
+										In these photos, D0 is the clock signal, D1 is an artificial chip select signal for the purposes of decoding on the oscilliscope, 
+										D2 is the "load" signal, D3 is the COPI signal, D4 is the CIPO signal, and D5 is the "done" signal.
+									</p>
+								</div>	
+								
+								<div style="display: block;">
+									<p>
+										<span class="image fit"><img src="images/Lab7/OSCILLISCOPE_ZOOM_OUT.png" alt=""/> <em>The logic analyzer signals during transmitting, encrypting, and receiving</em></span>
+										
+									</p>
+								</div>	
+
+								<div style="display: block;">
+									<p>
+										<span class="image fit"><img src="images/Lab7/OSCILLISCOPE_BEGINNING.png" alt=""/> <em>The logic analyzer signals when transmitting begins- note how "load" goes high and stays high while transmitting</em></span>
+									</p>
+								</div>	
+
+								<div style="display: block;">
+									<p>
+										<span class="image fit"><img src="images/Lab7/OSCILLISCOPE_MIDDLE.png" alt=""/> <em>The logic analyzer signals when encrypting occurs- note how "load" goes low, then how "done" goes high very quickly after, and then receiving begins</em></span>
+									</p>
+								</div>
+
+								
+
+								<div style="display: inline-block;">
+									<p>
+										I successfully compiled and uploaded my code to the STM32 microcontroller. The design meets all of the <a href = "https://hmc-e155.github.io/lab/lab7/specs.html">requirements</a>.
+										The LED connected to PA9 lit up! This indicated success as PA9 is tied to the received encrypted text matching the expected encrypted text on the microcontroller.
+										<br>
+										This lab took me an estimated 25 hours to complete. 
+									</p>
+								</div>
+
+							</div>
+						</div>
+					</div>
+				</div>
+
+						<!-- Footer -->
+					<footer id="footer">
+						<div class="inner">
+							<section>
+								<h2>Get in touch</h2>
+								<form method="post" action="https://formspree.io/f/xldrgnlg">
+									<div class="fields">
+										<div class="field half">
+											<input type="text" name="name" id="name" placeholder="Name" />
+										</div>
+										<div class="field half">
+											<input type="email" name="email" id="email" placeholder="Email" />
+										</div>
+										<div class="field">
+											<textarea name="message" id="message" placeholder="Message"></textarea>
+										</div>
+									</div>
+									<ul class="actions">
+										<li><input type="submit" value="Send" class="primary" /></li>
+									</ul>
+								</form>
+							</section>
+							<section>
+								<h2>Follow</h2>
+								<ul class="icons">
+									<li><a href="https://www.linkedin.com/in/marina-ring/" class="icon brands style2 fa-linkedin"><span class="label">LinkedIn</span></a></li>
+									<li><a href="mailto:mring@g.hmc.edu" class="icon solid style2 fa-envelope"><span class="label">Email</span></a></li>
+								</ul>
+							</section>
+							<ul class="copyright">
+								<li>&copy; Untitled. All rights reserved</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+							</ul>
+						</div>
+					</footer>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
