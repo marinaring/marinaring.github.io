@@ -101,7 +101,9 @@
 									<p>
 										In order to output a square wave signal from the microcontroller, I took advantage of the Timer 15 and Timer 16 registers. Both are able to be configured to a PWM mode and connected to a GPIO pin 
 										in alternate function mode in order to produce a square wave output. Each Timer has its own counter that is compared to a value set when configuring the register. When the counter is less than this 
-										compare/contrast value, it outputs a high signal (or 1). When the counter is greater or equal to this compare/contrast value, it outputs a low signal (or 0). 
+										compare/contrast value, it outputs a high signal (or 1). When the counter is greater or equal to this capture/compare value, it outputs a low signal (or 0). Additionally, an auto-reload value is set
+										such that when the counter is equal to this value, it resets to zero. Therefore, the auto-reload value will set the period of our signal and the capture/compare value will set the duty cycle.
+										In this lab, I used a duty cycle of 0.5 for all sound outputs so the capture/compare value was always set to half of the auto-reload value. 
 										<br>
 									</p>
 									<p>
@@ -118,14 +120,15 @@
 										
 									</p>
 									<p>
-										The minimum and maximum duration and frequency supported can be calculated by considering when the compare/contrast value is set to 0 and when it is set to its max value, which is 
-										$$2^{16} - 1 = 65535$$ for a
-										16 bit register.  
+										Where \(f_{CNT}\) is the frequency at which the counter changes, \(f_{sound}\) is the frequency of the output sound signal, \(cycles\) is the number of times the counter counts up or
+										the auto-reload value, \(f_{clk} \) is the system clock frequency, and \(PSC\) is the system clock pre-scaling factor. 
+										The minimum and maximum duration and frequency supported can be calculated by considering when the auto-reload value is set to 0 and when it is set to its max value, which is 
+										\(2^{16} - 1 = 65535\) for a 16 bit register.  
 									</p>
 									<p>
 										Below, I have included the table detailing the values I calculated to ensure that the frequencies outputted by Timer 16 produced pitches in the range of 220-1000 Hz within 1% accuracy. I chose
-										to use a prescaler value of 999 for Timer 16, which output a PWM signal to the speaker. Given a prescaler value of 999, the maximum frequency able to be produced is 80 kHz using a compare/contrast value of 0. 
-										The minimum frequency able to be produced is 1.22 Hz using a compare/contrast value of 65535. 
+										to use a prescaler value of 999 for Timer 16, which output a PWM signal to the speaker. Given a prescaler value of 999, the maximum frequency able to be produced is 80 kHz using an auto-reload value of 0. 
+										The minimum frequency able to be produced is 1.22 Hz using an auto-reload value of 65535. 
 									</p>
 	
 								</div>
@@ -139,7 +142,7 @@
 								<div style="display: inline-block;">
 									<p>
 										I performed a similar analysis in order to determine the prescaler value needed to ensure proper durations for all notes. A table is shown below detailing the calculated values. I chose to use a prescaler
-										of 1999 for Timer 15, which was used to produce delays in milliseconds. Given a prescaler value of 1999, the maximum duration able to be produced is 1.64 seconds using a compare/contrast value of 65535. 
+										of 1999 for Timer 15, which was used to produce delays in milliseconds. Given a prescaler value of 1999, the maximum duration able to be produced is 1.64 seconds using an auto-reload value of 65535. 
 										The minimum duration able to be produced is 0.025 milliseconds. 
 									</p>
 								</div>

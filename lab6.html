@@ -97,61 +97,8 @@
 									<div><h3 style="margin:0">Coding and Timing</h3></div>
 								</div>
 								
-								<div style="display: inline-block;">
-									<p>
-										In order to output a square wave signal from the microcontroller, I took advantage of the Timer 15 and Timer 16 registers. Both are able to be configured to a PWM mode and connected to a GPIO pin 
-										in alternate function mode in order to produce a square wave output. Each Timer has its own counter that is compared to a value set when configuring the register. When the counter is less than this 
-										compare/contrast value, it outputs a high signal (or 1). When the counter is greater or equal to this compare/contrast value, it outputs a low signal (or 0). 
-										<br>
-									</p>
-									<p>
-										For this lab, we were tasked with producing pitches with accuracies within 1% across the frequency range of 220-1000 Hz. To achieve this constraint, I ran a timing analysis using 
-										Excel and the equations listed below. Because I used phase-locked-loop to clock the microcontroller at 80 MHz, I needed to use a prescaler to produce these lower frequencies. The equations I used 
-										are detailed below. 
-
-										
-										
-										\[ f_{CNT} = \frac{f_{clk}}{PSC + 1} \]
-										\[ \frac{1}{f_{sound}} = \frac{1}{f_{CNT}} * cycles \]
-										\[ cycles = \frac{f_{clk}}{f_{sound} (PSC + 1)} \]
-										\[ f_{sound} = \frac{f_{sound}}{cycles (PSC + 1)} \]
-										
-									</p>
-									<p>
-										The minimum and maximum duration and frequency supported can be calculated by considering when the compare/contrast value is set to 0 and when it is set to its max value, which is $2^{16} - 1 = 65535$ for a
-										16 bit register.  
-									</p>
-									<p>
-										Below, I have included the table detailing the values I calculated to ensure that the frequencies outputted by Timer 16 produced pitches in the range of 220-1000 Hz within 1% accuracy. I chose
-										to use a prescaler value of 999 for Timer 16, which output a PWM signal to the speaker. Given a prescaler value of 999, the maximum frequency able to be produced is 80 kHz using a compare/contrast value of 0. 
-										The minimum frequency able to be produced is 1.22 Hz using a compare/contrast value of 65535. 
-									</p>
-	
-								</div>
-								<div style="display: block;">
-									<p>
-										<span class="image fit"><img src="images/Lab4/TIMING TABLE.png" alt=""/></span>
-										
-									</p>
-								</div>	
-
-								<div style="display: inline-block;">
-									<p>
-										I performed a similar analysis in order to determine the prescaler value needed to ensure proper durations for all notes. A table is shown below detailing the calculated values. I chose to use a prescaler
-										of 1999 for Timer 15, which was used to produce delays in milliseconds. Given a prescaler value of 1999, the maximum duration able to be produced is 1.64 seconds using a compare/contrast value of 65535. 
-										The minimum duration able to be produced is 0.025 milliseconds. 
-									</p>
-								</div>
-
-								<div style="display: flex; justify-content: center;">
-									<p>
-										<span class="image fit" style = "max-width: 90%; "><img src="images/Lab4/DELAY TIMING TABLE.png" alt=""/></span>
-										
-									</p>
-								</div>	
 								
-							<br>
-
+							
 							<div style="display: inline-block; padding-bottom: 4em;">
 								<div class="box" style="display: flex; align-items: center; justify-content: left;">
 									<div><h3 style="margin:0">Verification</h3></div>
